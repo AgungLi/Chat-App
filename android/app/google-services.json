@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "214191248053",
+    "project_id": "chatapp-gungli",
+    "storage_bucket": "chatapp-gungli.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214191248053:android:cae455f6deaf019dce64fc",
+        "android_client_info": {
+          "package_name": "com.agungli.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "214191248053-8fraghg2u4tigptib7v992etl7op31ff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.agungli.chatapp",
+            "certificate_hash": "8da5c641f2cc3b9042b570635f566c81d3ca29d5"
+          }
+        },
+        {
+          "client_id": "214191248053-7o3e0m80rs4eivtve4m42saj1hn8jlh3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfz_2y1sGOcqfBuh_1TEsHTiJ0T8bnZT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "214191248053-7o3e0m80rs4eivtve4m42saj1hn8jlh3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
