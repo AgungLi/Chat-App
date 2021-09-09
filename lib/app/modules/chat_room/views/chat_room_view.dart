@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -48,65 +51,122 @@ class ChatRoomView extends GetView<ChatRoomController> {
         ),
         centerTitle: false,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              child: ListView(
-                children: [
-                  ItemChat(
-                    isSender: true,
-                  ),
-                  ItemChat(
-                    isSender: false,
-                  ),
-                ],
+      body: WillPopScope(
+        onWillPop: () {
+          if (controller.isShowEmoji.isTrue) {
+            controller.isShowEmoji.value = false;
+          } else {
+            Navigator.pop(context);
+          }
+          return Future.value(false);
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
+                child: ListView(
+                  children: [
+                    ItemChat(
+                      isSender: true,
+                    ),
+                    ItemChat(
+                      isSender: false,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Container(
-              margin: EdgeInsets.only(bottom: context.mediaQueryPadding.bottom),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              width: Get.width,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      width: 200,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.emoji_emotions_outlined),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(100),
+            Container(
+                margin: EdgeInsets.only(
+                  bottom: controller.isShowEmoji.isFalse
+                      ? 5
+                      : context.mediaQueryPadding.bottom,
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                width: Get.width,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: 200,
+                        child: TextField(
+                          controller: controller.chatC,
+                          focusNode: controller.focusNode,
+                          decoration: InputDecoration(
+                            prefixIcon: IconButton(
+                              onPressed: () {
+                                controller.focusNode.unfocus();
+                                controller.isShowEmoji.toggle();
+                              },
+                              icon: Icon(Icons.emoji_emotions_outlined),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(100),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Material(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Colors.red[900],
-                    child: InkWell(
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Material(
                       borderRadius: BorderRadius.circular(100),
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Icon(
-                          Icons.send,
-                          color: Colors.white,
+                      color: Colors.red[900],
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        onTap: () {},
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  )
-                ],
-              )),
-        ],
+                    )
+                  ],
+                )),
+            Obx(
+              () => (controller.isShowEmoji.isTrue)
+                  ? Container(
+                      height: 325,
+                      child: EmojiPicker(
+                        onEmojiSelected: (category, emoji) {
+                          controller.addEmojiToChat(emoji);
+                        },
+                        onBackspacePressed: () {
+                          controller.deleteEmoji();
+                        },
+                        config: Config(
+                            columns: 7,
+                            emojiSizeMax: 32 *
+                                (Platform.isIOS
+                                    ? 1.30
+                                    : 1.0), // Issue: https://github.com/flutter/flutter/issues/28894
+                            verticalSpacing: 0,
+                            horizontalSpacing: 0,
+                            initCategory: Category.RECENT,
+                            bgColor: Color(0xFFF2F2F2),
+                            indicatorColor: Color(0xFFB71C1C),
+                            iconColor: Colors.grey,
+                            iconColorSelected: Color(0xFFB71C1C),
+                            progressIndicatorColor: Color(0xFFB71C1C),
+                            backspaceColor: Color(0xFFB71C1C),
+                            showRecentsTab: true,
+                            recentsLimit: 28,
+                            noRecentsText: "No Recents",
+                            noRecentsStyle: const TextStyle(
+                                fontSize: 20, color: Colors.black26),
+                            tabIndicatorAnimDuration: kTabScrollDuration,
+                            categoryIcons: const CategoryIcons(),
+                            buttonMode: ButtonMode.MATERIAL),
+                      ),
+                    )
+                  : SizedBox(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -127,7 +187,6 @@ class ItemChat extends StatelessWidget {
         vertical: 15,
         horizontal: 20,
       ),
-      color: Colors.black12,
       child: Column(
         crossAxisAlignment:
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
