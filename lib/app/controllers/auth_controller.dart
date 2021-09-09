@@ -1,4 +1,5 @@
 import 'package:chatapp/app/routes/app_pages.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -8,23 +9,36 @@ class AuthController extends GetxController {
 
   GoogleSignIn _googleSignIn = GoogleSignIn();
   GoogleSignInAccount? _currentUser;
+  UserCredential? userCredential;
 
   Future<void> login() async {
     // Create Function for login with google.
     try {
+      // untuk handle kebocoran data user sebelum login
       await _googleSignIn.signOut();
+      // ini digunakan untuk mendapatkan google akun
       await _googleSignIn.signIn().then((value) => _currentUser = value);
-      await _googleSignIn.isSignedIn().then((value) {
-        if (value) {
-          // login is success
-          print(_currentUser);
-          isAuth.value = true;
-          Get.offAllNamed(Routes.HOME);
-        } else {
-          // login is failed
+      // digunakan untuk mengecek status login user
+      final isSignIn = await _googleSignIn.isSignedIn();
+      if (isSignIn) {
+        // login berhasil
+        final googleAuth = await _currentUser!.authentication;
+        final credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+          accessToken: googleAuth.accessToken,
+        );
+        await FirebaseAuth.instance
+            .signInWithCredential(credential)
+            .then((value) => userCredential = value);
 
-        }
-      });
+        print(userCredential);
+
+        isAuth.value = true;
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        // login is failed
+
+      }
     } catch (error) {
       print(error);
     }
