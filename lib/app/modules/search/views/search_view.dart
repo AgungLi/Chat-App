@@ -51,6 +51,7 @@ class SearchView extends GetView<SearchController> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: TextField(
+                  controller: controller.searchC,
                   cursorColor: Colors.red[900],
                   decoration: InputDecoration(
                     fillColor: Colors.white,

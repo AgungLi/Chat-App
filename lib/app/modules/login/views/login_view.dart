@@ -1,3 +1,4 @@
+import 'package:chatapp/app/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -6,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
+  final authC = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +24,7 @@ class LoginView extends GetView<LoginController> {
                 child: Lottie.asset("assets/lottie/login.json"),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () => authC.login(),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
