@@ -73,21 +73,20 @@ class AuthController extends GetxController {
         }
         box.write('skipIntro', true);
 
-        // // Masukan data ke Firebase
-        // CollectionReference users = firestore.collection('users');
-
-        // users.doc(_currentUser!.email).set({
-        //   "uid": userCredential!.user!.uid,
-        //   "name": _currentUser!.displayName,
-        //   "email": _currentUser!.email,
-        //   "photoUrl": _currentUser!.photoUrl,
-        //   "status": "",
-        //   "creationTime":
-        //       userCredential!.user!.metadata.creationTime!.toIso8601String(),
-        //   "lastSignInTime":
-        //       userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
-        //   "updatedTime": DateTime.now().toIso8601String(),
-        // });
+        // Masukan data ke Firebase
+        CollectionReference users = firestore.collection('users');
+        users.doc(_currentUser!.email).set({
+          "uid": userCredential!.user!.uid,
+          "name": _currentUser!.displayName,
+          "email": _currentUser!.email,
+          "photoUrl": _currentUser!.photoUrl,
+          "status": "",
+          "creationTime":
+              userCredential!.user!.metadata.creationTime!.toIso8601String(),
+          "lastSignInTime":
+              userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
+          "updatedTime": DateTime.now().toIso8601String(),
+        });
         isAuth.value = true;
         Get.offAllNamed(Routes.HOME);
       } else {
