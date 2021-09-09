@@ -2,6 +2,7 @@ import 'package:chatapp/app/data/models/users_model.dart';
 import 'package:chatapp/app/routes/app_pages.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,7 +15,7 @@ class AuthController extends GetxController {
   GoogleSignInAccount? _currentUser;
   UserCredential? userCredential;
 
-  UsersModel user = UsersModel();
+  var user = UsersModel().obs;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -62,7 +63,7 @@ class AuthController extends GetxController {
         final currUser = await users.doc(_currentUser!.email).get();
         final currUserData = currUser.data() as Map<String, dynamic>;
 
-        user = UsersModel(
+        user(UsersModel(
           uid: currUserData["uid"],
           name: currUserData["name"],
           email: currUserData["email"],
@@ -71,7 +72,7 @@ class AuthController extends GetxController {
           creationTime: currUserData["creationTime"],
           lastSignInTime: currUserData["lastSignInTime"],
           updatedTime: currUserData["updatedTime"],
-        );
+        ));
 
         return true;
       }
@@ -135,7 +136,7 @@ class AuthController extends GetxController {
         final currUser = await users.doc(_currentUser!.email).get();
         final currUserData = currUser.data() as Map<String, dynamic>;
 
-        user = UsersModel(
+        user(UsersModel(
           uid: currUserData["uid"],
           name: currUserData["name"],
           email: currUserData["email"],
@@ -144,7 +145,7 @@ class AuthController extends GetxController {
           creationTime: currUserData["creationTime"],
           lastSignInTime: currUserData["lastSignInTime"],
           updatedTime: currUserData["updatedTime"],
-        );
+        ));
 
         isAuth.value = true;
         Get.offAllNamed(Routes.HOME);
@@ -162,5 +163,55 @@ class AuthController extends GetxController {
     await _googleSignIn.disconnect();
     await _googleSignIn.signOut();
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  // PROFILE
+
+  void changeProfile(String name, String status) {
+    String date = DateTime.now().toIso8601String();
+    //Update firebase
+    CollectionReference users = firestore.collection("users");
+    users.doc(_currentUser!.email).update({
+      "name": name,
+      "status": status,
+      "lastSignInTime":
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
+      "updatedTime": date
+    });
+
+    // update model
+    user.update((user) {
+      user!.name = name;
+      user.status = status;
+      user.lastSignInTime =
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String();
+      user.updatedTime = date;
+    });
+
+    user.refresh();
+    Get.defaultDialog(title: "Success", middleText: "Change Profile Success");
+  }
+
+  void updateStatus(String status) {
+    String date = DateTime.now().toIso8601String();
+
+    //Update firebase
+    CollectionReference users = firestore.collection("users");
+    users.doc(_currentUser!.email).update({
+      "status": status,
+      "lastSignInTime":
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
+      "updatedTime": date,
+    });
+
+    // update model
+    user.update((user) {
+      user!.status = status;
+      user.lastSignInTime =
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String();
+      user.updatedTime = date;
+    });
+    user.refresh();
+    Get.defaultDialog(title: "Success", middleText: "Update status Success");
   }
 }
