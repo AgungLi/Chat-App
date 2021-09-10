@@ -2,7 +2,6 @@ import 'package:chatapp/app/data/models/users_model.dart';
 import 'package:chatapp/app/routes/app_pages.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -66,6 +65,7 @@ class AuthController extends GetxController {
         user(UsersModel(
           uid: currUserData["uid"],
           name: currUserData["name"],
+          keyName: currUserData["keyName"],
           email: currUserData["email"],
           photoUrl: currUserData["photoUrl"],
           status: currUserData["status"],
@@ -118,6 +118,7 @@ class AuthController extends GetxController {
           users.doc(_currentUser!.email).set({
             "uid": userCredential!.user!.uid,
             "name": _currentUser!.displayName,
+            "keyName": _currentUser!.displayName!.substring(0, 1).toUpperCase(),
             "email": _currentUser!.email,
             "photoUrl": _currentUser!.photoUrl ?? "noimage",
             "status": "",
@@ -139,6 +140,7 @@ class AuthController extends GetxController {
         user(UsersModel(
           uid: currUserData["uid"],
           name: currUserData["name"],
+          keyName: currUserData["keyName"],
           email: currUserData["email"],
           photoUrl: currUserData["photoUrl"],
           status: currUserData["status"],
@@ -173,6 +175,7 @@ class AuthController extends GetxController {
     CollectionReference users = firestore.collection("users");
     users.doc(_currentUser!.email).update({
       "name": name,
+      "keyName": name.substring(0, 1).toUpperCase(),
       "status": status,
       "lastSignInTime":
           userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
@@ -182,6 +185,7 @@ class AuthController extends GetxController {
     // update model
     user.update((user) {
       user!.name = name;
+      user.keyName = name.substring(0, 1).toUpperCase();
       user.status = status;
       user.lastSignInTime =
           userCredential!.user!.metadata.lastSignInTime!.toIso8601String();

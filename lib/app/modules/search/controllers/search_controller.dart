@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -19,8 +18,8 @@ class SearchController extends GetxController {
       var capitalized = data.substring(0, 1).toUpperCase() + data.substring(1);
       if (queryAwal.length == 0 && data.length == 1) {
         // fungsi yang akan dijalankan pada ketikan pertama
-        CollectionReference clients = await firestore.collection("clients");
-        final keyNameResult = await clients
+        CollectionReference users = await firestore.collection("users");
+        final keyNameResult = await users
             .where("keyName", isEqualTo: data.substring(0, 1).toUpperCase())
             .get();
         if (keyNameResult.docs.length > 0) {
