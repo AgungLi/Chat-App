@@ -1,3 +1,4 @@
+import 'package:chatapp/app/controllers/auth_controller.dart';
 import 'package:chatapp/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,7 @@ import 'package:lottie/lottie.dart';
 import '../controllers/search_controller.dart';
 
 class SearchView extends GetView<SearchController> {
+  final authC = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +26,8 @@ class SearchView extends GetView<SearchController> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: TextField(
-                  onChanged: (value) => controller.searchFriend(value),
+                  onChanged: (value) =>
+                      controller.searchFriend(value, authC.user.value.email!),
                   controller: controller.searchC,
                   cursorColor: Colors.red[900],
                   decoration: InputDecoration(
