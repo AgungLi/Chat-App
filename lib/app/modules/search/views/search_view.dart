@@ -1,5 +1,4 @@
 import 'package:chatapp/app/controllers/auth_controller.dart';
-import 'package:chatapp/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -96,7 +95,8 @@ class SearchView extends GetView<SearchController> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   trailing: GestureDetector(
-                    onTap: () => Get.toNamed(Routes.CHAT_ROOM),
+                    onTap: () => authC.addNewConnection(
+                        controller.tempSearch[index]["email"]),
                     child: Chip(
                       label: Text("Message"),
                     ),
