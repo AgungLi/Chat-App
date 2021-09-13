@@ -25,8 +25,10 @@ class SearchView extends GetView<SearchController> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: TextField(
-                  onChanged: (value) =>
-                      controller.searchFriend(value, authC.user.value.email!),
+                  onChanged: (value) => controller.searchFriend(
+                    value,
+                    authC.user.value.email!,
+                  ),
                   controller: controller.searchC,
                   cursorColor: Colors.red[900],
                   decoration: InputDecoration(
@@ -81,9 +83,18 @@ class SearchView extends GetView<SearchController> {
                   leading: CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.black26,
-                    child: Image.asset(
-                      "assets/logo/noimage.png",
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child:
+                          controller.tempSearch[index]["photoUrl"] == "noimage"
+                              ? Image.asset(
+                                  "assets/logo/noimage.png",
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  controller.tempSearch[index]["photoUrl"],
+                                  fit: BoxFit.cover,
+                                ),
                     ),
                   ),
                   title: Text(
