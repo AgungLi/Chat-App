@@ -258,6 +258,7 @@ class AuthController extends GetxController {
           "connection": friendEmail,
           "chat_id": chatDataId,
           "lastTime": chatsData["lastTime"],
+          "total_unread": 0,
         });
 
         await users.doc(_currentUser!.email).update({"chats": docChats});
@@ -269,20 +270,17 @@ class AuthController extends GetxController {
       } else {
         // membuat baru, meraka belum ada koneksi
         final newChatDoc = await chats.add({
-          "connection": [
+          "connections": [
             _currentUser!.email,
             friendEmail,
           ],
-          "total_chats": 0,
-          "total_read": 0,
-          "total_unread": 0,
           "chat": [],
-          "lastTime": date,
         });
         docChats.add({
           "connection": friendEmail,
           "chat_id": newChatDoc.id,
           "lastTime": date,
+          "total_unread": 0,
         });
 
         await users.doc(_currentUser!.email).update({
