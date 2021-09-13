@@ -202,40 +202,74 @@ class AuthController extends GetxController {
 
 // SEARCH
   void addNewConnection(String friendEmail) async {
+    bool flagNewConnection = false;
+    var chat_id;
+
     String date = DateTime.now().toIso8601String();
     CollectionReference chats = firestore.collection("chats");
-    final newChatDoc = await chats.add({
-      "connection": [
-        _currentUser!.email,
-        friendEmail,
-      ],
-      "total_chats": 0,
-      "total_read": 0,
-      "total_unread": 0,
-      "chat": [],
-      "lastTime": date,
-    });
     CollectionReference users = firestore.collection("users");
-    await users.doc(_currentUser!.email).update({
-      "chats": [
-        {
-          "connection": friendEmail,
-          "chat_id": newChatDoc.id,
-          "lastTime": DateTime.now().toIso8601String(),
-        }
-      ]
-    });
 
-    user.update((user) {
-      user!.chats = [
-        ChatUser(
-          chatId: newChatDoc.id,
-          connection: friendEmail,
-          lastTime: date,
-        )
-      ];
-    });
-    user.refresh();
-    Get.toNamed(Routes.CHAT_ROOM);
+    final docUser = await users.doc(_currentUser!.email).get();
+    final docChats = (docUser.data() as Map<String, dynamic>)["chats"] as List;
+
+    if (docChats.length != 0) {
+      // user sudah pernah chat dengan siapapun
+      docChats.forEach((singleChat) {
+        if (singleChat["connection"] == friendEmail) {
+          chat_id = singleChat["chat_id"];
+        }
+      });
+      if (chat_id != null) {
+        // sudah pernah buak koneksi dengan  => friendEmail
+        flagNewConnection = false;
+      } else {
+        // belum pernah buak koneksi dengan  => friendEmail
+        // membuat koneksi
+        flagNewConnection = true;
+      }
+    } else {
+      // belum pernah chat dengan siapapun
+      // membuat koneksi
+      flagNewConnection = true;
+    }
+
+    if (flagNewConnection == true) {
+      // 1. Belum pernag mempunyai histori chats dengan friendEmail
+      // 2. Sudah pernah buak koneksi (histori chat) denga friendEmail
+
+      final newChatDoc = await chats.add({
+        "connection": [
+          _currentUser!.email,
+          friendEmail,
+        ],
+        "total_chats": 0,
+        "total_read": 0,
+        "total_unread": 0,
+        "chat": [],
+        "lastTime": date,
+      });
+      await users.doc(_currentUser!.email).update({
+        "chats": [
+          {
+            "connection": friendEmail,
+            "chat_id": newChatDoc.id,
+            "lastTime": DateTime.now().toIso8601String(),
+          }
+        ]
+      });
+
+      user.update((user) {
+        user!.chats = [
+          ChatUser(
+            chatId: newChatDoc.id,
+            connection: friendEmail,
+            lastTime: date,
+          )
+        ];
+      });
+      chat_id = newChatDoc.id;
+      user.refresh();
+    }
+    Get.toNamed(Routes.CHAT_ROOM, arguments: chat_id);
   }
 }
