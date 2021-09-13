@@ -233,42 +233,80 @@ class AuthController extends GetxController {
       flagNewConnection = true;
     }
 
-    if (flagNewConnection == true) {
-      // 1. Belum pernag mempunyai histori chats dengan friendEmail
-      // 2. Sudah pernah buak koneksi (histori chat) denga friendEmail
-
-      final newChatDoc = await chats.add({
-        "connection": [
-          _currentUser!.email,
-          friendEmail,
+    if (flagNewConnection) {
+      // cek dari chats collection => connection =>  mereka berdua
+      // 1. kalo misalnya ada ..
+      final chatsDocs = await chats.where(
+        "connection",
+        whereIn: [
+          [
+            _currentUser!.email,
+            friendEmail,
+          ],
+          [
+            friendEmail,
+            _currentUser!.email,
+          ],
         ],
-        "total_chats": 0,
-        "total_read": 0,
-        "total_unread": 0,
-        "chat": [],
-        "lastTime": date,
-      });
-      await users.doc(_currentUser!.email).update({
-        "chats": [
-          {
-            "connection": friendEmail,
-            "chat_id": newChatDoc.id,
-            "lastTime": DateTime.now().toIso8601String(),
-          }
-        ]
-      });
-
-      user.update((user) {
-        user!.chats = [
-          ChatUser(
-            chatId: newChatDoc.id,
-            connection: friendEmail,
-            lastTime: date,
-          )
-        ];
-      });
-      chat_id = newChatDoc.id;
-      user.refresh();
+      ).get();
+      if (chatsDocs.docs.length != 0) {
+        // ada data chats (sudah ada koneksi)
+        final chatDataId = chatsDocs.docs[0].id;
+        final chatsData = chatsDocs.docs[0].data() as Map<String, dynamic>;
+        await users.doc(_currentUser!.email).update({
+          "chats": [
+            {
+              "connection": friendEmail,
+              "chat_id": chatDataId,
+              "lastTime": chatsData["lastTime"],
+            }
+          ]
+        });
+        user.update((user) {
+          user!.chats = [
+            ChatUser(
+              chatId: chatDataId,
+              connection: friendEmail,
+              lastTime: chatsData["lastTime"],
+            )
+          ];
+        });
+        chat_id = chatDataId;
+        user.refresh();
+      } else {
+        // membuat baru, meraka belum ada koneksi
+        final newChatDoc = await chats.add({
+          "connection": [
+            _currentUser!.email,
+            friendEmail,
+          ],
+          "total_chats": 0,
+          "total_read": 0,
+          "total_unread": 0,
+          "chat": [],
+          "lastTime": date,
+        });
+        await users.doc(_currentUser!.email).update({
+          "chats": [
+            {
+              "connection": friendEmail,
+              "chat_id": newChatDoc.id,
+              "lastTime": date,
+            }
+          ]
+        });
+        user.update((user) {
+          user!.chats = [
+            ChatUser(
+              chatId: newChatDoc.id,
+              connection: friendEmail,
+              lastTime: date,
+            )
+          ];
+        });
+        chat_id = newChatDoc.id;
+        user.refresh();
+      }
     }
     Get.toNamed(Routes.CHAT_ROOM, arguments: chat_id);
   }
