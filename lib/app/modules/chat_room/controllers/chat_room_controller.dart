@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 class ChatRoomController extends GetxController {
   var isShowEmoji = false.obs;
 
+  int total_unread = 0;
+
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   late FocusNode focusNode;
@@ -19,16 +21,59 @@ class ChatRoomController extends GetxController {
     chatC.text = chatC.text.substring(0, chatC.text.length - 2);
   }
 
-  void newChat(String email, Map<String, dynamic> argument, String chat) {
+  void newChat(String email, Map<String, dynamic> argument, String chat) async {
     CollectionReference chats = firestore.collection("chats");
+    CollectionReference users = firestore.collection("users");
+    String date = DateTime.now().toIso8601String();
 
-    chats.doc(argument["chat_id"]).collection("chat").add({
+    final newChat =
+        await chats.doc(argument["chat_id"]).collection("chat").add({
       "pengirim": email,
       "penerima": argument["friendEmail"],
       "msg": chat,
-      "time": DateTime.now().toIso8601String(),
+      "time": date,
       "isRead": false,
     });
+
+    await users.doc(email).collection("chats").doc(argument["chat_id"]).update({
+      "lastTime": date,
+    });
+
+    final checkChatsFriend = await users
+        .doc(argument["friendEmail"])
+        .collection("chats")
+        .doc(argument["chat_id"])
+        .get();
+
+    if (checkChatsFriend.exists) {
+      await users
+          .doc(argument["friendEmail"])
+          .collection("chats")
+          .doc(argument["chat_id"])
+          .get()
+          .then((value) => total_unread =
+              total_unread + value.data()!["total_unread"] as int);
+      //update for friend db
+      await users
+          .doc(argument["friendEmail"])
+          .collection("chats")
+          .doc(argument["chat_id"])
+          .update({
+        "lastTime": date,
+        "total_unread": total_unread + 1,
+      });
+    } else {
+      // new for friend db
+      await users
+          .doc(argument["friendEmail"])
+          .collection("chats")
+          .doc(argument["chat_id"])
+          .set({
+        "connection": email,
+        "lastTime": date,
+        "total_unread": total_unread + 1,
+      });
+    }
   }
 
   @override
