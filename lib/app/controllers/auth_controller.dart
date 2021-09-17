@@ -15,6 +15,7 @@ class AuthController extends GetxController {
   UserCredential? userCredential;
 
   var user = UsersModel().obs;
+  var friendUser = UsersModel().obs;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -412,17 +413,21 @@ class AuthController extends GetxController {
           .doc(element.id)
           .update({"isRead": true});
     });
+    
     await users
         .doc(_currentUser!.email)
         .collection("chats")
         .doc(chat_id)
         .update({"total_unread": 0});
 
+    
+
     Get.toNamed(
       Routes.CHAT_ROOM,
       arguments: {
         "chat_id": "$chat_id",
         "friendEmail": friendEmail,
+        "friendUserModel": friendUser.value,
       },
     );
   }
