@@ -190,7 +190,13 @@ class ChangeProfileView extends GetView<ChangeProfileController> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () => c
+                                    .uploadImage(authC.user.value.uid!)
+                                    .then((hasilKembalian) {
+                                  if (hasilKembalian != null) {
+                                    authC.updatePhotoUrl(hasilKembalian);
+                                  }
+                                }),
                                 child: Text(
                                   "Upload",
                                   style: TextStyle(

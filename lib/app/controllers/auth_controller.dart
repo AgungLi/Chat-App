@@ -255,6 +255,26 @@ class AuthController extends GetxController {
     Get.defaultDialog(title: "Success", middleText: "Update status Success");
   }
 
+  void updatePhotoUrl(String url) async {
+    String date = DateTime.now().toIso8601String();
+
+    //Update firebase
+    CollectionReference users = firestore.collection("users");
+    await users.doc(_currentUser!.email).update({
+      "photoUrl": url,
+      "updatedTime": date,
+    });
+
+    // update model
+    user.update((user) {
+      user!.photoUrl = url;
+      user.updatedTime = date;
+    });
+    user.refresh();
+    Get.defaultDialog(
+        title: "Success", middleText: "Change photo profile Success");
+  }
+
 // SEARCH
   void addNewConnection(String friendEmail) async {
     bool flagNewConnection = false;
@@ -413,14 +433,12 @@ class AuthController extends GetxController {
           .doc(element.id)
           .update({"isRead": true});
     });
-    
+
     await users
         .doc(_currentUser!.email)
         .collection("chats")
         .doc(chat_id)
         .update({"total_unread": 0});
-
-    
 
     Get.toNamed(
       Routes.CHAT_ROOM,
