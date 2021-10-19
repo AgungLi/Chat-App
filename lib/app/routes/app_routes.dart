@@ -12,6 +12,8 @@ abstract class Routes {
   static const SEARCH = _Paths.SEARCH;
   static const UPDATE_STATUS = _Paths.UPDATE_STATUS;
   static const CHANGE_PROFILE = _Paths.CHANGE_PROFILE;
+  static const GENERATE_SCREEN = _Paths.GENERATE_SCREEN;
+  static const GENERATE_KEY = _Paths.GENERATE_KEY;
 }
 
 abstract class _Paths {
@@ -23,4 +25,6 @@ abstract class _Paths {
   static const SEARCH = '/search';
   static const UPDATE_STATUS = '/update-status';
   static const CHANGE_PROFILE = '/change-profile';
+  static const GENERATE_SCREEN = '/generate-screen';
+  static const GENERATE_KEY = '/generate-key';
 }

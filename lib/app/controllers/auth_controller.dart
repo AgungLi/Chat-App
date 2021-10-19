@@ -140,6 +140,7 @@ class AuthController extends GetxController {
             "email": _currentUser!.email,
             "photoUrl": _currentUser!.photoUrl ?? "noimage",
             "status": "",
+            "privateKey": "asdasd",
             "creationTime":
                 userCredential!.user!.metadata.creationTime!.toIso8601String(),
             "lastSignInTime": userCredential!.user!.metadata.lastSignInTime!
@@ -255,6 +256,31 @@ class AuthController extends GetxController {
     Get.defaultDialog(title: "Success", middleText: "Update status Success");
   }
 
+  void updateKeyPairs(String privateKey, String publicKey) {
+    String date = DateTime.now().toIso8601String();
+
+    //Update firebase
+    CollectionReference users = firestore.collection("users");
+    users.doc(_currentUser!.email).update({
+      "privateKey": privateKey,
+      "publicKey": publicKey,
+      "lastSignInTime":
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String(),
+      "updatedTime": date,
+    });
+
+    // update model
+    user.update((user) {
+      user!.privateKey = privateKey;
+      user.publicKey = publicKey;
+      user.lastSignInTime =
+          userCredential!.user!.metadata.lastSignInTime!.toIso8601String();
+      user.updatedTime = date;
+    });
+    user.refresh();
+    Get.defaultDialog(title: "Success", middleText: "Update Keys Success");
+  }
+
   void updatePhotoUrl(String url) async {
     String date = DateTime.now().toIso8601String();
 
@@ -296,7 +322,7 @@ class AuthController extends GetxController {
           .get();
 
       if (checkConnection.docs.length != 0) {
-        // sudah pernah buak koneksi dengan  => friendEmail
+        // sudah pernah buat koneksi dengan  => friendEmail
         flagNewConnection = false;
         //chat_id from chat collection
         chat_id = checkConnection.docs[0].id;

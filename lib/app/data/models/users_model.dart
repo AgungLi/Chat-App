@@ -18,6 +18,8 @@ class UsersModel {
     this.lastSignInTime,
     this.photoUrl,
     this.status,
+    this.privateKey,
+    this.publicKey,
     this.updatedTime,
     this.chats,
   });
@@ -30,6 +32,8 @@ class UsersModel {
   String? lastSignInTime;
   String? photoUrl;
   String? status;
+  String? privateKey;
+  String? publicKey;
   String? updatedTime;
   List<ChatUser>? chats;
 
@@ -42,6 +46,8 @@ class UsersModel {
         lastSignInTime: json[""],
         photoUrl: json["photoUrl"],
         status: json["status"],
+        privateKey: json["privateKey"],
+        publicKey: json["publicKey"],
         updatedTime: json["updatedTime"],
       );
 
@@ -54,6 +60,8 @@ class UsersModel {
         "lastSignInTime": lastSignInTime,
         "photoUrl": photoUrl,
         "status": status,
+        "privateKey": privateKey,
+        "publicKey": publicKey,
         "updatedTime": updatedTime,
       };
 }

@@ -110,6 +110,15 @@ class ProfileView extends GetView<ProfileController> {
                       ),
                       trailing: Text("Light"),
                     ),
+                    ListTile(
+                      onTap: () => Get.toNamed(Routes.GENERATE_KEY),
+                      leading: Icon(Icons.fingerprint),
+                      title: Text(
+                        "Generate Key",
+                        style: TextStyle(fontSize: 22),
+                      ),
+                      trailing: Icon(Icons.arrow_right),
+                    ),
                   ],
                 ),
               ),
