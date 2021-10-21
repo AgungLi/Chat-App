@@ -71,18 +71,21 @@ class ChatUser {
     this.connection,
     this.chatId,
     this.lastTime,
+    this.publicKey,
     this.totalUnread,
   });
 
   String? connection;
   String? chatId;
   String? lastTime;
+  String? publicKey;
   int? totalUnread;
 
   factory ChatUser.fromJson(Map<String, dynamic> json) => ChatUser(
         connection: json["connection"],
         chatId: json["chat_id"],
         lastTime: json["lastTime"],
+        publicKey: json["publicKey"],
         totalUnread: json["total_unread"],
       );
 
@@ -90,6 +93,7 @@ class ChatUser {
         "connection": connection,
         "chat_id": chatId,
         "lastTime": lastTime,
+        "publicKey": publicKey,
         "total_unread": totalUnread,
       };
 }

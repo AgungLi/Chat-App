@@ -106,8 +106,12 @@ class SearchView extends GetView<SearchController> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                   trailing: GestureDetector(
-                    onTap: () => authC.addNewConnection(
-                        controller.tempSearch[index]["email"]),
+                    onTap: () {
+                      authC.addNewConnection(
+                        controller.tempSearch[index]["email"],
+                        controller.tempSearch[index]["publicKey"],
+                      );
+                    },
                     child: Chip(
                       label: Text("Message"),
                     ),

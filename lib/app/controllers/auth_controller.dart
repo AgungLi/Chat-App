@@ -140,7 +140,7 @@ class AuthController extends GetxController {
             "email": _currentUser!.email,
             "photoUrl": _currentUser!.photoUrl ?? "noimage",
             "status": "",
-            "privateKey": "asdasd",
+            "privateKey": "",
             "creationTime":
                 userCredential!.user!.metadata.creationTime!.toIso8601String(),
             "lastSignInTime": userCredential!.user!.metadata.lastSignInTime!
@@ -302,7 +302,7 @@ class AuthController extends GetxController {
   }
 
 // SEARCH
-  void addNewConnection(String friendEmail) async {
+  void addNewConnection(String friendEmail, String publicKey) async {
     bool flagNewConnection = false;
     var chat_id;
 
@@ -406,6 +406,12 @@ class AuthController extends GetxController {
 
         await chats.doc(newChatDoc.id).collection("chat");
 
+        final checkConnectionFriend = await users
+            .doc(friendEmail)
+            .collection("chats")
+            .where("connection", isEqualTo: friendEmail)
+            .get();
+
         await users
             .doc(_currentUser!.email)
             .collection("chats")
@@ -413,6 +419,20 @@ class AuthController extends GetxController {
             .set({
           "connection": friendEmail,
           "lastTime": date,
+          "publicKey": publicKey,
+          "total_unread": 0,
+        });
+
+        final getKey = await users.doc(_currentUser!.email).get();
+
+        await users
+            .doc(friendEmail)
+            .collection("chats")
+            .doc(newChatDoc.id)
+            .set({
+          "connection": _currentUser!.email,
+          "lastTime": date,
+          "publicKey": getKey["publicKey"],
           "total_unread": 0,
         });
 

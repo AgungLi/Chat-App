@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:rsa_encrypt/rsa_encrypt.dart';
 
 import '../controllers/chat_room_controller.dart';
 
 class ChatRoomView extends GetView<ChatRoomController> {
   final authC = Get.find<AuthController>();
+  var friendKey = "";
+  RsaKeyHelper rsa = RsaKeyHelper();
   final String chat_id = (Get.arguments as Map<String, dynamic>)["chat_id"];
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                         ConnectionState.active) {
                       var dataFriend =
                           snapFriendUser.data!.data() as Map<String, dynamic>;
+                      friendKey = dataFriend["privateKey"];
                       if (dataFriend["photoUrl"] == "noimage") {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(50),
@@ -82,7 +86,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    dataFriend["name"],
+                    "${dataFriend["name"]}",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -146,6 +150,18 @@ class ChatRoomView extends GetView<ChatRoomController> {
                         controller: controller.scrollC,
                         itemCount: allData.length,
                         itemBuilder: (context, index) {
+                          final me = rsa.parsePrivateKeyFromPem(
+                              authC.user.value.privateKey);
+                          final friend = rsa.parsePrivateKeyFromPem(friendKey);
+                          var pesan = "";
+
+                          if (allData[index]["pengirim"] ==
+                              authC.user.value.email!) {
+                            pesan = decrypt(allData[index]["msg"], friend);
+                          } else {
+                            pesan = decrypt(allData[index]["msg"], me);
+                          }
+
                           if (index == 0) {
                             return Column(
                               children: [
@@ -157,7 +173,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                                   ),
                                 ),
                                 ItemChat(
-                                  msg: "${allData[index]["msg"]}",
+                                  msg: "${pesan}",
                                   isSender: allData[index]["pengirim"] ==
                                           authC.user.value.email!
                                       ? true
@@ -170,7 +186,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                             if (allData[index]["groupTime"] ==
                                 allData[index - 1]["groupTime"]) {
                               return ItemChat(
-                                msg: "${allData[index]["msg"]}",
+                                msg: "${pesan}",
                                 isSender: allData[index]["pengirim"] ==
                                         authC.user.value.email!
                                     ? true
@@ -187,7 +203,7 @@ class ChatRoomView extends GetView<ChatRoomController> {
                                     ),
                                   ),
                                   ItemChat(
-                                    msg: "${allData[index]["msg"]}",
+                                    msg: "${pesan}",
                                     isSender: allData[index]["pengirim"] ==
                                             authC.user.value.email!
                                         ? true

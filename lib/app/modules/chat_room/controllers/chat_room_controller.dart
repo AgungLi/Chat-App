@@ -4,10 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
+import 'package:rsa_encrypt/rsa_encrypt.dart';
 
 class ChatRoomController extends GetxController {
   var isShowEmoji = false.obs;
+  GoogleSignInAccount? _currentUser;
 
   int total_unread = 0;
 
@@ -16,6 +19,7 @@ class ChatRoomController extends GetxController {
   late FocusNode focusNode;
   late TextEditingController chatC;
   late ScrollController scrollC;
+  final RsaKeyHelper rsa = RsaKeyHelper();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> streamChats(String chat_id) {
     CollectionReference chats = firestore.collection("chats");
@@ -45,12 +49,21 @@ class ChatRoomController extends GetxController {
       CollectionReference chats = firestore.collection("chats");
       CollectionReference users = firestore.collection("users");
       String date = DateTime.now().toIso8601String();
+      final getKey = await users
+          .doc(email)
+          .collection("chats")
+          .doc(argument["chat_id"])
+          .get();
+
+      final friendPublicKey = rsa.parsePublicKeyFromPem(getKey["publicKey"]);
+
+      var chipertext = encrypt(chat, friendPublicKey);
 
       final newChat =
           await chats.doc(argument["chat_id"]).collection("chat").add({
         "pengirim": email,
         "penerima": argument["friendEmail"],
-        "msg": chat,
+        "msg": chipertext,
         "time": date,
         "isRead": false,
         "groupTime": DateFormat.yMMMMd('en_US').format(DateTime.parse(date)),
